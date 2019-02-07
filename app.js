@@ -2,8 +2,12 @@ const express = require("express");
 const exphbs = require("express-handlebars");
 // mongoose
 const mongoose = require("mongoose");
+
 // body-parser
 const bodyParser = require('body-parser');
+
+// Method-override
+const methodOverride = require('method-override');
 
 // Map global Promise to avoid warning
 mongoose.Promise = global.Promise;
@@ -37,14 +41,14 @@ app.use((req, res, next) => {
   req.name = "Muhammad Hassan";
   next();
 });
-
 // body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
+// Methode Override Middleware
+app.use(methodOverride('_method'));
 
 // Index Route
 app.get("/", (req, res) => {
-  console.log(req.name);
   const title = "Welcome";
   res.render("home", {
     title
@@ -79,6 +83,7 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
+// Add Route
 app.get("/ideas/add",(req, res) => {
     res.render("ideas/add")
 })
@@ -106,6 +111,21 @@ app.post('/ideas', (req, res) => {
                 res.redirect('/ideas');
             })
     };
+})
+
+// Idea update PUT route
+app.put('/ideas/:id', (req, res) => {
+    const _id = req.params.id;
+    Idea.findOne({ _id })
+        .then(idea => {
+            idea.title = req.body.title;
+            idea.details = req.body.details;
+            idea.save()
+                .then(idea => {
+                    res.redirect('/ideas')
+                })
+
+        })
 })
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
