@@ -113,7 +113,7 @@ app.post('/ideas', (req, res) => {
     };
 })
 
-// Idea update PUT route
+// Idea update or PUT request
 app.put('/ideas/:id', (req, res) => {
     const _id = req.params.id;
     Idea.findOne({ _id })
@@ -125,6 +125,14 @@ app.put('/ideas/:id', (req, res) => {
                     res.redirect('/ideas')
                 })
 
+        })
+})
+
+// Delete request or delete idea
+app.delete('/ideas/:id', (req, res) => {
+    Idea.remove({ _id: req.params.id })
+        .then(() => {
+            res.redirect('/ideas');
         })
 })
 
