@@ -1,5 +1,6 @@
 const express = require("express");
 const exphbs = require("express-handlebars");
+const path = require('path');
 // mongoose
 const mongoose = require("mongoose");
 // body-parser
@@ -26,6 +27,7 @@ const port = 3030;
 
 // Load routes
 const Ideas = require('./routes/ideas');
+const Users = require('./routes/users');
 
 //SET the default view
 app.engine(
@@ -52,6 +54,11 @@ app.use(session({
 // body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
+
+
+// Static folder
+app.use(express.static(path.join(__dirname,'public')))
+
 // Methode Override Middleware
 app.use(methodOverride('_method'));
 // flash middleware
@@ -78,21 +85,8 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
-// Add Route
-app.get("/ideas/add",(req, res) => {
-    res.render("ideas/add")
-})
-
-// User login Route
-app.get('/user/login', (req, res) => {
-    res.send('Login')
-})
-
-// User Register Route
-app.get('/user/register', (req, res) => {
-    res.send('Register')
-})
-
+// Use routes
 app.use('/ideas', Ideas);
+app.use('/user', Users);
 
 app.listen(port, () => console.log(`Server started on port ${port}`));

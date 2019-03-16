@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
-
 const mongoose = require('mongoose');
 
 // Mongoose Schema
 require('../models/ideas')
 const Idea = mongoose.model('ideas');
+
+// Add Route
+router.get("/add",(req, res) => {
+    res.render("ideas/add")
+})
 
 // Ideas route
 router.get('/', (req, res) => {
