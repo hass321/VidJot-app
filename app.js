@@ -85,7 +85,7 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
-// Use routes
+// Use router
 app.use('/ideas', Ideas);
 app.use('/user', Users);
 
