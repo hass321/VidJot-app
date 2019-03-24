@@ -28,7 +28,7 @@ mongoose
 
 const app = express();
 
-const port = 3030;
+const port = process.env.PORT || 3030;
 
 // Load routes
 const Ideas = require('./routes/ideas');
@@ -53,12 +53,6 @@ app.use((req, res, next) => {
   req.name = "Muhammad Hassan";
   next();
 });
-// express session middleware
-app.use(session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-}))
 
 // passport middleware
 app.use(passport.initialize());
@@ -74,6 +68,14 @@ app.use(express.static(path.join(__dirname,'public')))
 
 // Methode Override Middleware
 app.use(methodOverride('_method'));
+
+// express session middleware
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}))
+
 // flash middleware
 app.use(flash());
 
