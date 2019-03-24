@@ -54,10 +54,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
 // body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
@@ -78,6 +74,11 @@ app.use(session({
 
 // flash middleware
 app.use(flash());
+
+// passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 // Global variables
 app.use(function(req, res, next){
