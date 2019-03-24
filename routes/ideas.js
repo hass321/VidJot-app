@@ -1,19 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+// helpers
+const { ensureAuthenticated } = require('../helpers/auth');
 
 // Mongoose Schema
 require('../models/ideas')
 const Idea = mongoose.model('ideas');
 
-// Add Route
-router.get("/add",(req, res) => {
+// Add idea
+router.get("/add", ensureAuthenticated, (req, res) => {
     res.render("ideas/add")
 })
 
 // Ideas route
-router.get('/', (req, res) => {
-    Idea.find({})
+router.get('/', ensureAuthenticated, (req, res) => {
+    Idea.find({ user: req.user.id })
         .sort({date: 'desc'})
         .then(ideas => {
             res.render('ideas/index',{
@@ -23,19 +25,24 @@ router.get('/', (req, res) => {
 })
 
 // Ideas edit route
-router.get('/edit/:id', (req, res) => {
+router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     Idea.findOne({
         _id: req.params.id
     })
         .then(idea => {
-            res.render('ideas/edit', {
-                idea
-            })
+            if(idea.user !== req.user.id){
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/ideas');
+            }else{
+                res.render('ideas/edit', {
+                    idea
+                })
+            }
         })
 });
 
 // listening to POST req
-router.post('/', (req, res) => {
+router.post('/', ensureAuthenticated, (req, res) => {
     const errors = [];
     if(!req.body.title){ errors.push({text: 'Please add a title'}) };
     if(!req.body.details){ errors.push({text: 'Please add some details'}) };
@@ -48,7 +55,8 @@ router.post('/', (req, res) => {
     }else{
         const newUser = {
             title: req.body.title,
-            details: req.body.details
+            details: req.body.details,
+            user: req.user.id
         }
 
         new Idea(newUser)
@@ -61,7 +69,7 @@ router.post('/', (req, res) => {
 })
 
 // Idea update or PUT request
-router.put('/:id', (req, res) => {
+router.put('/:id', ensureAuthenticated, (req, res) => {
     const _id = req.params.id;
     Idea.findOne({ _id })
         .then(idea => {
@@ -77,7 +85,7 @@ router.put('/:id', (req, res) => {
 })
 
 // Delete request or delete idea
-router.delete('/:id', (req, res) => {
+router.delete('/:id', ensureAuthenticated, (req, res) => {
     Idea.remove({ _id: req.params.id })
         .then(() => {
             req.flash('success_msg', 'Video idea delete');

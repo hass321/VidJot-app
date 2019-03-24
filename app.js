@@ -11,12 +11,17 @@ const methodOverride = require('method-override');
 const flash = require('connect-flash');
 // Session
 const session = require('express-session');
+// passport for authentication
+const passport = require('passport');
 
 // Map global Promise to avoid warning
 mongoose.Promise = global.Promise;
+
+// Database Config
+const db = require('./config/database');
 // connecting to mongoosedb
 mongoose
-  .connect("mongodb://localhost/vidjot-app", { useNewUrlParser: true })
+  .connect(db.mongoURI, { useNewUrlParser: true })
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.log(err));
 
@@ -28,6 +33,9 @@ const port = 3030;
 // Load routes
 const Ideas = require('./routes/ideas');
 const Users = require('./routes/users');
+
+// passport config
+require('./config/passport')(passport);
 
 //SET the default view
 app.engine(
@@ -45,12 +53,17 @@ app.use((req, res, next) => {
   req.name = "Muhammad Hassan";
   next();
 });
-// session middleware
+// express session middleware
 app.use(session({
     secret: 'secret',
     resave: true,
     saveUninitialized: true
 }))
+
+// passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 // body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
@@ -69,6 +82,7 @@ app.use(function(req, res, next){
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
     res.locals.error = req.flash('error');
+    res.locals.user = req.user || null;
     next();
 })
 

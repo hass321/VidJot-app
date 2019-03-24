@@ -15,6 +15,15 @@ router.get('/login', (req, res) => {
     res.render('users/login')
 })
 
+// Login form post
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', {
+        successRedirect: '/ideas',
+        failureRedirect: '/user/login',
+        failureFlash: true
+    })(req, res, next);
+});
+
 // User Register Route
 router.get('/register', (req, res) => {
     res.render('users/register')
@@ -45,7 +54,7 @@ router.post('/register', (req, res) => {
         .then(user => {
             if(user){
                 req.flash('error_msg', 'Email already Registered!');
-                res.redirect('/user/register');
+                res.redirect('/user/login');
             }else{
                 const newUser = new User({
                     name,
@@ -71,6 +80,13 @@ router.post('/register', (req, res) => {
             }
         })
     }
+});
+
+// User logout
+router.get('/logout', (req, res) => {
+    req.logout();
+    req.flash('success_msg', 'Your are logged out');
+    res.redirect('/user/login');
 })
 
 module.exports = router;
